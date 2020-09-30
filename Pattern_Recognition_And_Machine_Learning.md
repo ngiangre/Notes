@@ -23,15 +23,38 @@
 
 # Chapter 3 Linear Models for Regression
 
-- in supervised learning, one can model the target variable with linear combinations of a set of linear or nonlinear functions (using basis functions that can lead to splines and other possibly different transformations across a the input space) of the input variables
+- in supervised learning, one can model the target variable with linear combinations of a set of linear or nonlinear functions (using basis functions that can lead to splines and other possibly different transformations across an input space) of the input variables
 - including a regularization term in SVD, which can solve the least squares problem, can avoid singularity of the data fitting
-- sequential or online learning can be done with SGD to update the parameters as more data is seen. RRegularizers are also called weight decay taken from sequential learning. 
+- sequential or online learning can be done with SGD to update the parameters as more data is seen. Regularizers are also called weight decay taken from sequential learning. 
 - the overfitting problem goes away in the bayesian setting because of marginalizing over parameters. 
-- ML frameworks have the tradeoff between bias (the extent to which the average prediction over all data sets differs from the desired regression functionand variance (the extent to which the solutions for individual data sets vary around their average) - the balance is achieved at optimal prediction
+- ML frameworks have the tradeoff between bias (the extent to which the average prediction over all data sets differs from the desired regression function) and variance (the extent to which the solutions for individual data sets vary around their average) - the balance is achieved at optimal prediction
 - a broad prior distribution over weights to derive the posterior is equivalent to the maximum likelihood of the weights in linear regression
 - the predictive distribution at a point x is a linear combination of its target variables and is formulated with an equivalent kernel (from the use of basis functions) which is just matrix algebra with the weight and covariance martices, also depending on the input data. The effective kernel can define the weights by which the training set target variables are combined in order to make a new prediction, and these weights sum to 1. This leads to the gaussian process framework.
-- in comparing bayesian models, a validation set isn't need (a hold out set is good practice) by marginalizing over the parameters using on the training data. We can compare model preference with the posterior distributions encoded by the ratio bayes factor. One can pick a single model (model selection) or a collection of models (mixture distribution). 
-- Implicit in the Bayesian model comparison framework is the assumption that
-the true distribution from which the data are generated is contained within the set of models under consideration. The Kullback Leiber quantity gives the average bayes factor (the bayes factor could be higher for an incorrect model (on average) and so integrating the ratio of model probabilities given the true input space gives an average bayes factor).
+- in comparing bayesian models, a validation set isn't need (a hold out set is good practice). Only need to marginalize over the parameters used  on the training data. We can compare model preference with the posterior distributions encoded by the ratio of bayes factors. One can pick a single model (model selection) or a collection of models (mixture distribution). 
+- Implicit in the Bayesian model comparison framework is the assumption that the true distribution from which the data are generated is contained within the set of models under consideration. The Kullback Leiber quantity gives the average bayes factor (the bayes factor could be higher for an incorrect model (on average) and so integrating the ratio of model probabilities given the true input space gives an average bayes factor).
 - Empirical bayes - hyperparameters set by MLE over the parameters. 
 - linear combinations of fixed basis functions have drawbacks that methods like NNs can alleviate. Neural network models, which use adaptive basis functions having sigmoidal nonlinearities, can adapt the parameters so that the regions of input space over which the basis functions vary corresponds to the data manifold. The second property is that target variables may have significant dependence on only a small number of possible directions within the data manifold. Neural networks can exploit this property by choosing the directions in input space to which the basis functions respond.
+
+# Chapter 4 Linear Models for Classification
+
+## Discrimant functions
+
+- takes data x and assigns it to a class C.
+- Parameters can be learned by least squares (not robust to outliers), the fisher criterian (optimizing interclass difference and minimizing intraclass variance), and the perceptron learning algorithm. 
+
+## Probabilistic generative models
+
+- relies on bayes theorem to quantify uncertainty in class probability distribution given the data.
+
+## Probabilistic discriminitive models
+
+- maximizing likelihood and class condidtional distributions and then finding weight parameters instead of the other way around. 
+
+## The Laplace transformation
+
+- Finds a gaussian approximation for the posterior disribution
+
+## Bayesian logistic regression
+
+- Exact bayesian inference of logistic regression is intractable. 
+- The laplace approximation is used. 

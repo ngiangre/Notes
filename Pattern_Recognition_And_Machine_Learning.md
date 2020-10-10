@@ -57,4 +57,45 @@
 ## Bayesian logistic regression
 
 - Exact bayesian inference of logistic regression is intractable. 
-- The laplace approximation is used. 
+- The laplace approximation is used for estimating the weights. 
+
+# Chapter 5 Neural Networks
+
+- need for adaptive basis functions
+- SVM centers basis functions on training data and convex optimization fits the model
+- MLP: fixed basis functions with parameters addapting during training. Not convex :/ learn parameters with MLE framework (nonlinear optimization problem)
+
+## Feed Forward Network Functions
+
+- linear combinations of parametric nonlinear basis functions for addjusting parameters
+
+## Network Training
+
+- analagous to polynomial curve fitting minimizing a sum of squares error function using partial derivatives or gradient descent optimization
+
+## Error backpropogation
+
+- finding a way for efficient evaluation the gradient of the error function
+- two steps: calculate backwards the derivates and then optimize forward using calculated derivates
+
+## The Hessian Matrix
+
+- useful to derive second derivatives for faster retraining with new data and other model validations
+
+## Regularization in Neural Networks
+
+- Can control number of hidden units or add regularizer term to error function (weight decay)
+- early stopping before the training error minimum is reached
+
+## Mixture Density Networks
+
+- adaptive approach for modeling conditional probabilities for which there isn't a unique solution
+- the conditional mean poorly predicts a multimodal distribution, the conditional mode can be derived numerical to provide better predictions. 
+
+## Bayesian Neural Networks
+
+- quantifying the marginal distributions to get the posterior can be done by variational inference (posterior has local minima)
+- the posterior distribution is gaussian using a laplace approximation
+- variational inference adds variance to calculating the posterior distribution and results in a gaussian!
+- marginalization makes the predictions effectively less predictive
+

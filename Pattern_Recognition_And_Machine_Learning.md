@@ -99,3 +99,24 @@
 - variational inference adds variance to calculating the posterior distribution and results in a gaussian!
 - marginalization makes the predictions effectively less predictive
 
+# Chapter 6 Kernel Methods
+
+- Usually the training data is tossed away after learning the parameters, but there's approaches that still use the training data or a subset
+- These memory based methods may construct functions based on some training data, fast to train but slower to predict
+- Could be nonlinear feature space - often symmetric. Linear kernel is the inner product between two feature vectors.
+
+## Dual Representations
+
+- comparing and fitting two vectors or represeentations
+
+## Constrtucting Kernels
+
+- corresponding to a scalar product
+
+## Radial basis function networks
+
+- each basis function is based on a distance from a center - great for interpolation
+
+## Gaussian processes
+
+- extension to probabilistic discriminitive models introducing the bayesian viewpoint to kernel methods

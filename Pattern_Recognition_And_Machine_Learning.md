@@ -120,3 +120,23 @@
 ## Gaussian processes
 
 - extension to probabilistic discriminitive models introducing the bayesian viewpoint to kernel methods
+
+# Chapter 7 Sparse Kernel Machines
+
+- Different from other kernel methods in that only a subset of the training is needed to make predictions.
+- SVM is an example
+
+## Maximum Margin Classifiers
+
+- Found by computational learning theory
+- reduces to convex optimization
+- single class support vector machines are an unsupervised alternative - aim to find a smooth boundary for enclosing high density areas
+- but output are decisions and not posteriors
+
+## Relevance Vector Machines
+
+- Bayesian, faster performance estimation, similar sparseness
+- training is longer because it's a nonconvex optimization problem
+- makes probabilistic predictions
+
+

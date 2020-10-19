@@ -139,4 +139,35 @@
 - training is longer because it's a nonconvex optimization problem
 - makes probabilistic predictions
 
+# Chapter 8 Graphical Models
+
+## Bayesian Networks
+
+- aka directed graphical models
+- the joint distribution can be written as a product of conditional distributions, one for each of the variables. This is called factorization
+- can surround multiple nodes in a plate for easier graphical representation
+- shading nodes symbolizes observed variables and unshaded nodes are hidden/latent. Solid circles are deterministic. 
+- New predictions are then derived from the sum rule marginilizing over the weights.
+- ancestral sampling - generating new input x from joint distributions
+
+## Conditional Independence
+
+- simplifies structures and amount of computation/factorization to be done
+- can test with d-separation
+
+## Markov Random Fields
+
+- aka undirected graphical models
+- simpler d-separation testing than DAGs
+- Markov blanket - set of nodes for testing conditional independence to another set of nodes
+- use cliques to define sets of nodes - but need an explicit normalization constant but can use boltzmann distributions in inexact potential functions instead
+
+
+## Inference in Graphical Models
+
+- useful to converts graphical models to factor graphs
+- idea is to pass local messages around
+- exact-inference using a tree like structure
+- belief propogation and the junction tree algorithm gives exact inference, variational methods give approximations as well as sampling/monte carlo methods for nondeterministic
+
 

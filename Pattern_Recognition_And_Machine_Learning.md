@@ -170,4 +170,21 @@
 - exact-inference using a tree like structure
 - belief propogation and the junction tree algorithm gives exact inference, variational methods give approximations as well as sampling/monte carlo methods for nondeterministic
 
+# Chapter 9 Mixture Models and EM
 
+## K means Clustering
+
+- Also used for data compression and image segmentation
+
+## Mixtures of Gaussians
+
+- a method for finding maximum likelihood estimates for models with latent variables is EM
+
+## An Alternative View of EM
+
+- Inching towards the parameters via converge 
+
+## The EM algorithm in general
+
+- Forms the foundation for the variational inference framework. 
+- Two stage iterative optimization technique

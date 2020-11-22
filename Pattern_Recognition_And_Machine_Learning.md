@@ -188,3 +188,42 @@
 
 - Forms the foundation for the variational inference framework. 
 - Two stage iterative optimization technique
+
+# Chapter 10 Approximate Inference
+
+## Variational inference
+
+- Uses a unknown covariate Z to "suck up" the latent variables
+- Said to give a good approximation of the posterior distrtibution 
+
+## Illustration: variational mixture of gaussians
+
+- good illustration of the application of variational methods and will also demonstrate how a Bayesian treatment elegantly resolves many of the difficulties associated with the maximum likelihood approach
+- the optimization of the variational posterior distribution involves cycling
+between two stages analogous to the E and M steps of the maximum likelihood EM algorithm.
+- if we consider the limit N →∞then the Bayesian treatment converges to the maximum likelihood EM algorithm
+
+## Variational linear regression
+
+- the variational approach gives precisely the same expression as that obtained by maximizing the evidence function using EM except that the point estimate for α is replaced by its expected value
+
+## Exponentional family distributions
+
+## Local variational messages
+
+- An alternative ‘local’ approach involves finding bounds on functions over individual variables or groups of variables within a model.
+
+## Variational logistic regression
+
+- the greater flexibility of the variational approximation leads to improved accuracy compared to the Laplace method.
+
+## Expectation propogation
+
+- an alternative form of deterministic approx- imate inference
+- based on the minimization of a Kullback-Leibler divergence but now of the reverse form, which gives the approximation rather different properties
+- Expectation propagation is based on an approximation to the posterior distribu-
+tion which is also given by a product of factors
+- Expectation propagation makes a much better approximation by optimizing each
+factor in turn in the context of all of the remaining factors
+- One disadvantage of expectation propagation is that there is no guarantee that
+the iterations will converge.

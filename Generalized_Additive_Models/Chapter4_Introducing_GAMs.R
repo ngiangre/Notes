@@ -1,0 +1,117 @@
+
+# Univariate Smoothing ----------------------------------------------------
+
+#' Starting from y=mx+b => y=f(x)+b where
+#' y is the response, x is a covariate, f is a smooth function, and b is the error
+#' 
+#' f(x)=sum(b_j * Beta) (basis function where f is an element of a space of functions)
+#' 
+#' so for one covariate, y=b_j * Beta + b
+#' 
+#' or f could be a 4th order polynomial and so
+#' y=beta0 + x*Beta1 + x^2 * Beta2 + x^3 * Beta3 + x^4 * Beta4 + b
+#' 
+#' But polynomial bases are problematic in that taylor's theorem does well when estimating around a single point but not around it's entire domain --> the polynomial oscillates wildly in places in order to interpolate and to sustain the derivative continuities at the points. A piecewise linear function does much better - doesn't oscillate wildly. Splines are shown to be a further improvement from this. 
+#' 
+
+require(gamair)
+data("engine");attach(engine)
+plot(size,wear,xlab="Engine capacity",ylab="Wear index")
+tf <- function(x,xj,j){
+    ## generate the jth tent function from set defined by knots xj
+    dj <- xj*0;dj[j] <- 1
+    ## linearly interpolates between xj and dj taking place at x
+    approx(xj,dj,x)$y
+}
+
+tf.X <- function(x,xj){
+    ## tent function basis matrix given data X
+    ## and knot sequence xk
+    nk <- length(xj); n <- length(x)
+    X <- matrix(NA,n,nk)
+    for(j in 1:nk) X[,j] <- tf(x,xj,j)
+    X
+}
+
+sj <- seq(min(size), max(size),length=6)
+X <- tf.X(size,sj) # sj determines the number of columns because it is the knots and size is the base vector where to extrapolate from - for(i in 1:length(sj))plot(x,tf(x,xj,i)) - at each knot value Xij is 1 and interpolates to 0 from either side
+b <- lm(wear ~ X - 1)
+s <- seq(min(size),max(size),length=200)
+Xp <- tf.X(s,sj)
+plot(size,wear)
+lines(s,Xp %*% coef(b))
+
+prs.fit <- function(y,x,xj,sp){
+    X = tf.X(x,xj) ## Model Matrix
+    D <- diff(diag(length(xj)),differences=2) ## sqrt penalty
+    X <- rbind(X,sqrt(sp) * D) ## augmented model matrix
+    y <- c(y,rep(0,nrow(D))) # augmented data
+    lm(y ~ X - 1) ## penalized least squares fit
+}
+
+sj <- seq(min(size),max(size),length=20) ## knots
+b <- prs.fit(wear,size,sj,2) ## penalized fit
+plot(size,wear)
+Xp <- tf.X(s,sj) ## prediction matrix
+lines(s,Xp %*% coef(b))
+
+
+rho = seq(-9,11,length=90)
+n <- length(wear)
+V <- rep(NA,90)
+for(i in 1:90){ ## loop through smoothing params
+    b <- prs.fit(wear,size,sj,exp(rho[i])) ## fit model
+    trF <- sum(influence(b)$hat[1:n]) ## extract EDF
+    rss <- sum((wear - fitted(b)[1:n])^2) ## residual SS
+    V[i] <- n*rss/(n-trF)^2 ## GCV score
+}
+plot(rho,V,type="l",xlab=expression(log(lambda)),main="GCV score")
+sp <- exp(rho[V==min(V)]) ## extract optimal sp
+b <- prs.fit(wear,size,sj,sp) ## re-fit
+plot(size,wear,main="GCV optimal fit")
+lines(s, Xp %*% coef(b))
+
+## copy of llm from 2.2.4...
+llm <- function(theta,X,Z,y) {
+    ## untransform parameters...
+    sigma.b <- exp(theta[1])
+    sigma <- exp(theta[2])
+    ## extract dimensions...
+    n <- length(y); pr <- ncol(Z); pf <- ncol(X)
+    ## obtain \hat \beta, \hat b...
+    X1 <- cbind(X,Z)
+    ipsi <- c(rep(0,pf),rep(1/sigma.b^2,pr))
+    b1 <- solve(crossprod(X1)/sigma^2+diag(ipsi),
+                t(X1)%*%y/sigma^2)
+    ## compute log|Z'Z/sigma^2 + I/sigma.b^2|...
+    ldet <- sum(log(diag(chol(crossprod(Z)/sigma^2 + 
+                                  diag(ipsi[-(1:pf)])))))
+    ## compute log profile likelihood...
+    l <- (-sum((y-X1%*%b1)^2)/sigma^2 - sum(b1^2*ipsi) - 
+              n*log(sigma^2) - pr*log(sigma.b^2) - 2*ldet - n*log(2*pi))/2
+    attr(l,"b") <- as.numeric(b1) ## return \hat beta and \hat b
+    -l 
+}
+
+X0 <- tf.X(size,sj) ## X in original parameterization
+D <- rbind(0,0,diff(diag(20),difference=2))
+diag(D) <- 1 ## augmented D
+X <- t(backsolve(t(D),t(X0))) ## re-parameterized X
+Z <- X[,-c(1,2)]; X <- X[,1:2] ## mixed model matrices
+## estimate smoothing and variance parameters
+m <- optim(c(0,0),llm,method="BFGS",X=X,Z=Z,y=wear)
+b <- attr(llm(m$par,X,Z,wear),"b") ## extract coefficients
+## plot results
+plot(size,wear)
+Xp1 <- t(backsolve(t(D),t(Xp))) ## re-parameterized pred. mat.
+lines(s,Xp1 %*% as.numeric(b),col="grey",lwd=2)
+
+library(nlme)
+g <- factor(rep(1,nrow(X))) ## dummy factor
+m <- lme(wear ~ X - 1, random=list(g=pdIdent(~ Z-1)))
+lines(s,Xp1  %*% as.numeric(coef(m))) ## add to plot
+
+
+# Additive models ---------------------------------------------------------
+
+

@@ -1,4 +1,7 @@
 
+# Inroduction -------------------------------------------------------------
+
+
 # Univariate Smoothing ----------------------------------------------------
 
 #' Starting from y=mx+b => y=f(x)+b where
@@ -114,4 +117,149 @@ lines(s,Xp1  %*% as.numeric(coef(m))) ## add to plot
 
 # Additive models ---------------------------------------------------------
 
+#' When two smooth functions are in an equation there coould be an identifiability problem because
+#' each function is estimable to within an additive constant - applying any constant to the functions
+#' do not change the model predictions
+#' 
+#' But if that's addressed, you can used penalized regression splines, estimate with penalized LSs and select the degree of smoothing by cross validation of REML for the model
+#' 
+#' calls the function producing the unconstrained basis and square root penalty matrices, given knot sequence xk and covariate values x
+tf.XD <- function(x,xk,cmx=NULL,m=2){
+     ## get X and D subject to constraint
+     nk <- length(xk)
+     X <- tf.X(x,xk)[,-nk] ## basis matrix
+     D <- diff(diag(nk),differences=m)[,-nk] ## root penalty
+     if(is.null(cmx)) cmx <- colMeans(X)
+     X <- sweep(X,2,cmx) ## subtract cmx from columns
+     list(X=X,D=D,cmx=cmx)
+ }
 
+am.fit <- function(y,x,v,sp,k=10){
+    ## setup bases and penalties...
+    xk <- seq(min(x),max(x),length=k)
+    xdx <- tf.XD(x,xk)
+    vk <- seq(min(v),max(v),length=k)
+    xdv <- tf.XD(v,vk)
+    ## create augmented model matrix and response...
+    nD <- nrow(xdx$D)*2
+    sp <- sqrt(sp)
+    X <- cbind(c(rep(1,nrow(xdx$X)),rep(0,nD)),
+               rbind(xdx$X,sp[1]*xdx$D,xdx$D*0),
+               rbind(xdv$X,xdx$D*0,sp[2]*xdv$D))
+    y1 <- c(y,rep(0,nD))
+    ## fit model...
+    b <- lm(y1 ~ X - 1)
+    ## compute some useful quuantities...
+    n <- length(y)
+    trA <- sum(influence(b)$hat[1:n]) ## EDF
+    rsd <- y - fitted(b)[1:n] ## residuals
+    rss <- sum(rsd^2) ## residual SS
+    sig.hat <- rss/(n-trA) ## residual variance
+    gcv <- sig.hat*n/(n-trA) ## GCV score
+    Vb <- vcov(b)*sig.hat/summary(b)$sigma^2 ## coef cov matrix
+    ## return fittted model...
+    list(b=coef(b),Vb=Vb,edf=trA,gcv=gcv,fitted=fitted(b)[1:n],
+         rsd=rsd,xk=list(xk,vk),cmx=list(xdx$cmx,xdv$cmx))
+}
+
+am.gcv <- function(lsp,y,x,v,k){
+    ## function suitable for GCV optimization by optim
+    am.fit(y,x,v,exp(lsp),k)$gcv
+}
+
+## find GCV optimal smoothing parameters...
+fit <- optim(c(0,0),am.gcv,y=trees$Volume,x=trees$Girth,
+             v=trees$Height,k=10)
+sp <- exp(fit$par) ## best fit smoothing parameters
+## Get fit at GCV optimal smoothing parameters
+fit <- am.fit(trees$Volume,trees$Girth,trees$Height,sp,k=10)
+am.plot <- function(fit,xlab,ylab){
+    ## prodduces effect plots for simple 2 term
+    ## additive model
+    start <- 2 ## where smooth coeffs start in beta
+    for(i in 1:2){
+        ## sequence of values at which to predict...
+        x <- seq(min(fit$xk[[i]]),max(fit$xk[[i]]),length=200)
+        ## get prediction matrix for this smooth...
+        Xp <- tf.XD(x,fit$xk[[i]],fit$cmx[[i]])$X
+        ## extract coefficients and cov matrix for this smooth
+        stop <- start + ncol(Xp)-1; ind <- start:stop
+        b <- fit$b[ind];Vb <- fit$Vb[ind,ind]
+        ## values for smooth at x...
+        fv <- Xp %*% b
+        ## standard errors for smooth at x...
+        se <- rowSums((Xp %*% Vb)* Xp)^.5
+        ## 2 se limits for smooth
+        ul <- fv + 2 * se; ll <- fv - 2 * se
+        ## plot smooth and limits
+        plot(x,fv,type="l",ylim=range(c(ul,ll)),xlab=xlab[i],ylab=ylab[i])
+        lines(x,ul,lty=2); lines(x,ll,lty=2)
+        start <- stop+1
+    }
+}
+
+par(mfrow=c(1,3))
+plot(fit$fitted,trees$Volume,xlab="fitted volume",ylab="observed volume")
+am.plot(fit, xlab=c("Girth","Height"),
+        ylab=c("s(Girth)","s(Height)"))
+#' the zero width point for height in the interval occurs because sum to zero constraint exactly  determines where the straight line must pass through zero
+#' 
+
+
+# Generalized additive models ---------------------------------------------
+
+#' The linear predictor now predicts some known smooth monotonic function of the expected value of the response, and the response may follow any exponential family disrttibution. 
+#' The model is estimated by penalized maximum likelihood versus penalized least squares but in practice it is penalized iterative least squares (PIRLS)
+#' 
+
+gam.fit <- function(y,x,v,sp,k=10){
+    ## gamma error log link 2 term gam fit...
+    eta <- log(y) ## initial eta
+    not.converged <- TRUE
+    old.gcv <- -100 ## don't converge immediately
+    while(not.converged){
+        mu <- exp(eta) ## current mu estimate
+        z <- (y - mu)/mu+eta ## pseudodata
+        fit <- am.fit(z,x,v,sp,k) ## penalized least squares
+        if(abs(fit$gcv-old.gcv)<1e-5*fit$gcv){
+            not.converged <- FALSE
+        }
+        old.gcv <- fit$gcv
+        eta <- fit$fitted ## updated eta
+    }
+    fit$fittted <- exp(fit$fitted) ## mue
+    fit
+}
+gam.gcv <- function(lsp,y,x,v,k=10){
+    gam.fit(y,x,v,exp(lsp),k=k)$gcv
+}
+
+## find GCV optimal smoothing parameters...
+fit <- optim(c(0,0),gam.gcv,y=trees$Volume,x=trees$Girth,
+             v=trees$Height,k=10)
+sp <- exp(fit$par) ## best fit smoothing parameters
+## Get fit at GCV optimal smoothing parameters
+fit <- gam.fit(trees$Volume,trees$Girth,trees$Height,sp,k=10)
+
+par(mfrow=c(1,3))
+plot(fit$fitted,trees$Volume,xlab="fitted volume",ylab="observed volume")
+am.plot(fit, xlab=c("Girth","Height"),
+        ylab=c("s(Girth)","s(Height)"))
+
+
+# Summary ------------------------------------------------------------------
+
+#' Estimation is by penalized versions of the least squares and maximum-likelihood methods used for linear models and GLMs.
+#' Indeed technically GAMs are simply GLMs estimated subject to smoothing penalties
+#' Largest difficulty is estimating the degree of penalization - GCV gives a reasonable solution but so does marginal likelihood
+#' 
+
+
+# Introducing package mgcv ------------------------------------------------
+
+library(mgcv)
+data(trees)
+ct1 <- gam(Volume ~ s(Height) + s(Girth),
+           family=Gamma(link=log),data=trees)
+ct1
+plot(ct1,residuals=T)

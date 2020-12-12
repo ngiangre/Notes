@@ -227,3 +227,38 @@ tion which is also given by a product of factors
 factor in turn in the context of all of the remaining factors
 - One disadvantage of expectation propagation is that there is no guarantee that
 the iterations will converge.
+
+# Chapter 11 Sampling Methods
+
+- Allows for approximate versus deterministic inference
+- As long as samples are drawn from the same probability distribution then the expectation  of f hat is the expectatio of f.
+ 
+## Basic sampling methods
+
+- The rejection sampling framework allows us to sample from relatively complex
+distributions, subject to certain constraints.
+- The technique of importance sampling provides a framework for approximating expectations di- rectly but does not itself provide a mechanism for drawing samples from distribution p(z)
+- MC sampling can replace the E step of Expectation-Maximization
+
+## Markov Chain Monte Carlo
+
+- Good sampling approach for high dimmensional data
+- The sample state is stored and determmines the next sampled state
+- The probability of transition is the same from the t state to the t+1 state
+
+## Gibbs Sampling
+
+- Gibbs sampling (Geman and Geman, 1984) is a simple and widely applicable Markov chain Monte Carlo algorithm and can be seen as a special case of the Metropolis- Hastings algorithm. Consider
+
+## Slice Sampling
+
+- defines step size to captture distribution characteristics when sampling
+
+## The Hybrid Monte Carlo Algorithm
+
+- based on physical systems
+- the Hamiltonian dynamical approach involves alternating between a series of leapfrog updates and a resampling of the momentum variables from their marginal distribution.
+
+## Estimating the partition function
+
+

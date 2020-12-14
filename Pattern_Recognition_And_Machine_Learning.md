@@ -261,4 +261,33 @@ distributions, subject to certain constraints.
 
 ## Estimating the partition function
 
+# Chapter 12 Continuous latent variables
+
+- Considering degrees of freedom of variability across data dimensions corresponding to its intrinsic dimensionality
+
+## Principal Component Analysis
+
+- assumes data arises from a linear-gaussian distribution 
+- projection to maximize the variance in the data or to minimize the projection cost between the data and projection axis
+
+## Probabilistic PCA
+
+- expressed as a maximum likelihood solution to capture dominant patterns in the data
+- can deal with missing data - by the EM algo
+- forms basis for bayesian PCA
+- can be run generatively to give new samples
+- uses a multivariate gaussian to control the parameters
+- Factor analysis is similar to probabilistic PCA but uses a different covariance structure
+
+## Kernel PCA
+
+- kernel substitution to PCA
+
+## Nonlinear Latent Variable Models
+
+- a general probability density can be obtained from a simple fixed reference density, such as a Gaussian, by making a nonlinear change of variables.
+- no assumption data arises from a linear gaussian distribution
+- autorecessive NNs map the inputs to the outputs but because the hidden units are smaller the mapping will generally not be perfect. 
+- MDS preserves the pairwise distance between points
+- latent trait models have discrete variables too
 

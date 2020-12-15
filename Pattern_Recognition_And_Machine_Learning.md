@@ -291,3 +291,29 @@ distributions, subject to certain constraints.
 - MDS preserves the pairwise distance between points
 - latent trait models have discrete variables too
 
+# Chapter 13 Sequential Data
+
+- These data moreso violate IID assumptions e.g. time series
+- Stationary - the underlying data distribution does not evolve with time
+- Non Stationary - the underlying data distribution evolves with time
+- Considering latent variables gives state space models
+
+## Markov Models
+
+- The future observation is independent of all but the most recent observations
+- relaxes IID assumption
+- the conditional probability of n given n-1 is equal - stationary/homogenous
+- Autoregressive model: For continuous variables, we can use linear-Gaussian conditional distributions in which each node has a Gaussian distribution whose mean is a linear function of its parents.
+
+## Hidden Markov Models
+
+- latent variables
+- discrete variables
+- Finding the most probable sequence of states is done using the Viterbi algorithm
+- An autoregressive HMM can better account for long-range interactions
+- Graphical models provide a general technique for motivating, describing, and analysing such structures, and variational methods provide a powerful framework for performing inference in those models for which exact solution is intractable.
+
+## Linear Dynamical Systems
+
+- latent variables
+- continuous variables
